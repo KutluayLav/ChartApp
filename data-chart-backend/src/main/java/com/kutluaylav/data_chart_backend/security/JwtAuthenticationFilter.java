@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
-                username = jwtTokenProvider.getUsernameFromJWT(token);
+                username = jwtTokenProvider.getUsernameFromToken(token);
             } catch (Exception e) {
                 log.warn("Failed to extract username from token: {}", e.getMessage());
             }
@@ -50,16 +50,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtTokenProvider.validateToken(token)) {
-                UsernamePasswordAuthenticationToken authToken =
+                UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("JWT validated successfully for user '{}'", username);
             } else {
-                log.warn("JWT validation failed for token with username '{}'", username);
+                log.warn("JWT validation failed for user '{}'", username);
             }
         }
 
         filterChain.doFilter(request, response);
     }
+
+
 }

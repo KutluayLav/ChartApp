@@ -1,4 +1,4 @@
-package com.kutluaylav.data_chart_backend.exception;
+package com.kutluaylav.data_chart_backend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

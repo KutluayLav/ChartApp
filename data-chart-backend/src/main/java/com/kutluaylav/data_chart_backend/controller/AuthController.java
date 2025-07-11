@@ -3,11 +3,15 @@ package com.kutluaylav.data_chart_backend.controller;
 
 import com.kutluaylav.data_chart_backend.dto.request.CreateUserRequest;
 import com.kutluaylav.data_chart_backend.dto.request.LoginRequest;
+import com.kutluaylav.data_chart_backend.dto.request.TokenRefreshRequest;
 import com.kutluaylav.data_chart_backend.dto.response.AuthResponse;
 import com.kutluaylav.data_chart_backend.dto.response.SuccessResponse;
 import com.kutluaylav.data_chart_backend.dto.response.UserDto;
+import com.kutluaylav.data_chart_backend.exception.RefreshTokenNotFoundException;
+import com.kutluaylav.data_chart_backend.model.RefreshToken;
 import com.kutluaylav.data_chart_backend.model.User;
 import com.kutluaylav.data_chart_backend.security.JwtTokenProvider;
+import com.kutluaylav.data_chart_backend.service.RefreshTokenService;
 import com.kutluaylav.data_chart_backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -31,11 +32,13 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserService userService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserService userService, RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/login")
@@ -46,9 +49,13 @@ public class AuthController {
                             loginRequest.getUsername(), loginRequest.getPassword()));
 
             String jwt = jwtTokenProvider.generateToken(authentication);
+
+            User user = userService.findEntityByUsername(loginRequest.getUsername());
+            String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getToken();
+
             log.info("User '{}' logged in successfully", loginRequest.getUsername());
 
-            AuthResponse authResponse = new AuthResponse(jwt);
+            AuthResponse authResponse = new AuthResponse(jwt, refreshToken);
 
             SuccessResponse<AuthResponse> successResponse = SuccessResponse.<AuthResponse>builder()
                     .message("Login successful")
@@ -74,6 +81,7 @@ public class AuthController {
     }
 
 
+
     @PostMapping("/register")
     public ResponseEntity<SuccessResponse<UserDto>> registerUser(@Valid @RequestBody CreateUserRequest request) {
         UserDto registeredUser = userService.register(request);
@@ -86,6 +94,62 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<SuccessResponse<String>> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+
+            String token = authorizationHeader.replace("Bearer ", "");
+
+            String username = jwtTokenProvider.getUsernameFromToken(token);
+
+            refreshTokenService.deleteByUsername(username);
+
+            log.info("User '{}' logged out and refresh token deleted", username);
+
+            SuccessResponse<String> response = SuccessResponse.<String>builder()
+                    .message("Logout successful")
+                    .status(HttpStatus.OK)
+                    .timestamp(LocalDateTime.now())
+                    .data("Refresh token deleted")
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Logout failed: {}", e.getMessage());
+
+            SuccessResponse<String> errorResponse = SuccessResponse.<String>builder()
+                    .message("Logout failed")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .timestamp(LocalDateTime.now())
+                    .data(null)
+                    .build();
+
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<SuccessResponse<AuthResponse>> refreshToken(@RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtTokenProvider.generateTokenWithUserName(user.getUsername());
+                    AuthResponse authResponse = new AuthResponse(token, requestRefreshToken);
+                    SuccessResponse<AuthResponse> successResponse = SuccessResponse.<AuthResponse>builder()
+                            .message("Token refreshed successfully")
+                            .status(HttpStatus.OK)
+                            .timestamp(LocalDateTime.now())
+                            .data(authResponse)
+                            .build();
+                    return ResponseEntity.ok(successResponse);
+                })
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token is not in database!"));
     }
 
 

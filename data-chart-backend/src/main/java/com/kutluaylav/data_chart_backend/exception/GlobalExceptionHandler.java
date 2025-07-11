@@ -1,9 +1,12 @@
 package com.kutluaylav.data_chart_backend.exception;
 
+import com.kutluaylav.data_chart_backend.dto.response.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -83,5 +86,41 @@ public class GlobalExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(apiException, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(RefreshTokenNotFoundException.class)
+    public ResponseEntity<ApiException<String>> handleRefreshTokenNotFound(RefreshTokenNotFoundException ex) {
+        ApiException<String> response = ApiException.<String>builder()
+                .message(ex.getMessage())
+                .status(HttpStatus.UNAUTHORIZED)
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiException<String>> handleAccessDeniedException(AccessDeniedException ex) {
+        ApiException<String> response = ApiException.<String>builder()
+                .message("You do not have permission to access this resource.")
+                .status(HttpStatus.FORBIDDEN)
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiException<String>> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        ApiException<String> response = ApiException.<String>builder()
+                .message("You do not have permission to access this resource.")
+                .status(HttpStatus.FORBIDDEN)
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 }

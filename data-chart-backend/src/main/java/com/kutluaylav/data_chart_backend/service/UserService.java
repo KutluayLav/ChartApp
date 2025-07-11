@@ -3,15 +3,19 @@ package com.kutluaylav.data_chart_backend.service;
 import com.kutluaylav.data_chart_backend.dto.request.CreateUserRequest;
 import com.kutluaylav.data_chart_backend.dto.response.UserDto;
 import com.kutluaylav.data_chart_backend.exception.EmailAlreadyExistsException;
+import com.kutluaylav.data_chart_backend.exception.ResourceNotFoundException;
 import com.kutluaylav.data_chart_backend.exception.UsernameAlreadyExistsException;
+import com.kutluaylav.data_chart_backend.mapper.UserMapper;
 import com.kutluaylav.data_chart_backend.model.Role;
 import com.kutluaylav.data_chart_backend.model.User;
 import com.kutluaylav.data_chart_backend.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -20,10 +24,12 @@ public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -43,7 +49,7 @@ public class UserService implements IUserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
                 .phoneNo(request.getPhoneNo())
-                .authorities(Set.of(Role.ROLE_USER))
+                .authorities(Set.of(Role.ROLE_ADMIN))
                 .accountNonExpired(true)
                 .accountNonLocked(true)
                 .credentialsNonExpired(true)
@@ -57,6 +63,27 @@ public class UserService implements IUserService {
         return toDto(user);
     }
 
+    @Override
+    public UserDto getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+        return userMapper.toDto(user);
+    }
+
+    @Override
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<UserDto> searchUsersByUsername(String username) {
+        return userRepository.findByUsernameContainingIgnoreCase(username).stream()
+                .map(userMapper::toDto)
+                .toList();
+    }
+
     private UserDto toDto(User user) {
         return UserDto.builder()
                 .id(user.getId())
@@ -66,6 +93,11 @@ public class UserService implements IUserService {
                 .authorities(user.getAuthorities())
                 .createdDate(user.getCreatedDate())
                 .build();
+    }
+
+    public User findEntityByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
 }
