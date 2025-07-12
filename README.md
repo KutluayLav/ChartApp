@@ -104,7 +104,7 @@ volumes:
   mssql_test_data:
 
 
-  ----- Test için db 
+  ----- Test için db kurulumu ve veri ekleme işlemi
 
   CREATE DATABASE SalesDB;
 GO
