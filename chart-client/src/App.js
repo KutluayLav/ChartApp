@@ -5,8 +5,6 @@ import { useAuth } from "./context/AuthContext";
 
 function App() {
   const { token } = useAuth();
-  console.log("Token in App.js:", token);
-
 
   return (
     <div className="App">
