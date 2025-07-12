@@ -5,6 +5,20 @@
 Bu proje, kullanıcıların bir MSSQL veritabanına bağlanarak `View`, `Function` veya `Stored Procedure` üzerinden veri çekip bu verilerle interaktif grafikler oluşturmasını sağlayan bir web tabanlı sistemdir.
 
 ---
+<p float="left">
+  <img src="https://github.com/user-attachments/assets/240b5be7-7498-49cf-9bb2-625771e5c19d" width="300" style="margin-right:10px;" />
+  <img src="https://github.com/user-attachments/assets/7b2d35ec-fdf9-4776-8efd-d930d890457f" width="300" style="margin-right:10px;" />
+  <img src="https://github.com/user-attachments/assets/c8aeca08-4d57-4596-953d-ede366775092" width="300" />
+</p>
+
+<p float="left">
+  <img src="https://github.com/user-attachments/assets/f241ee83-76e3-43d7-9fc7-f39c3871743b" width="300" style="margin-right:10px;" />
+  <img src="https://github.com/user-attachments/assets/e5edfffe-531b-4f67-873f-2b6d8b7ee31e" width="300" style="margin-right:10px;" />
+  <img src="https://github.com/user-attachments/assets/66642e56-849a-4bcb-9244-ba8d9e34b01a" width="300" />
+</p>
+
+
+
 
 ## 🚀 Özellikler
 
