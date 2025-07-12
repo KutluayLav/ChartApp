@@ -5,19 +5,18 @@
 Bu proje, kullanıcıların bir MSSQL veritabanına bağlanarak `View`, `Function` veya `Stored Procedure` üzerinden veri çekip bu verilerle interaktif grafikler oluşturmasını sağlayan bir web tabanlı sistemdir.
 
 ---
-<p float="left">
-  <img src="https://github.com/user-attachments/assets/240b5be7-7498-49cf-9bb2-625771e5c19d" width="300" style="margin-right:10px;" />
-  <img src="https://github.com/user-attachments/assets/7b2d35ec-fdf9-4776-8efd-d930d890457f" width="300" style="margin-right:10px;" />
-  <img src="https://github.com/user-attachments/assets/c8aeca08-4d57-4596-953d-ede366775092" width="300" />
-</p>
-
-<p float="left">
-  <img src="https://github.com/user-attachments/assets/f241ee83-76e3-43d7-9fc7-f39c3871743b" width="300" style="margin-right:10px;" />
-  <img src="https://github.com/user-attachments/assets/e5edfffe-531b-4f67-873f-2b6d8b7ee31e" width="300" style="margin-right:10px;" />
-  <img src="https://github.com/user-attachments/assets/66642e56-849a-4bcb-9244-ba8d9e34b01a" width="300" />
-</p>
-
-
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/a46e1264-04ee-4a6b-96b5-716e87e03f92" width="400" /></td>
+    <td><img src="https://github.com/user-attachments/assets/ddf31204-6850-47c8-9866-261f1582ad31" width="400" /></td>
+    <td><img src="https://github.com/user-attachments/assets/91b99251-271b-4c0c-8d42-704318bb428c" width="400" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/b42b7956-689f-4d8e-b6d4-634880608124" width="400" /></td>
+    <td><img src="https://github.com/user-attachments/assets/1107445d-1cc7-4c46-baa8-95e4216a5c7f" width="400" /></td>
+    <td><img src="https://github.com/user-attachments/assets/c62d00c2-f67a-403f-932e-f0447ffae9e4" width="400" /></td>
+  </tr>
+</table>
 
 
 ## 🚀 Özellikler
